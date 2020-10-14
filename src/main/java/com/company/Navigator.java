@@ -1,6 +1,7 @@
 package com.company;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -27,17 +28,14 @@ public class Navigator {
     private HttpRequest request;
     private ExecutorService executorService = Executors.newCachedThreadPool();
 
-    public Navigator() {
+    private Navigator() {
     }
 
-    public Navigator(String access_token, String link) {
+    private Navigator(String access_token, String link) {
         this.access_token = access_token;
         this.link = link;
     }
 
-    public String getAccess_token() {
-        return access_token;
-    }
 
     public void setAccess_token(String access_token) {
         this.access_token = access_token;
@@ -45,10 +43,6 @@ public class Navigator {
 
     public String getLink() {
         return link;
-    }
-
-    public void setLink(String link) {
-        this.link = link;
     }
 
     @Override
@@ -59,9 +53,9 @@ public class Navigator {
                 '}';
     }
 
-    public CompletableFuture<Void> navigateAsync(String link) throws ExecutionException, InterruptedException {
+    public CompletableFuture<Void> navigateAsync(String link)  {
         client = HttpClient.newBuilder()
-                .executor(executorService) // using cashed thred pool
+                //.executor(executorService) // using cashed thread pool
                 .build();
         request = HttpRequest.newBuilder()
                 .GET()
@@ -100,16 +94,32 @@ public class Navigator {
     }
 
 
-    public static Navigator register() throws IOException, InterruptedException {
+    public static Navigator register(){
+        Navigator navigator = null;
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create(BASIC_URI + "/register"))
                 .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        ObjectMapper mapper = new ObjectMapper();
-        Navigator navigator = mapper.readValue(response.body(), Navigator.class);
+        try {
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            ObjectMapper mapper = new ObjectMapper();
+            navigator = mapper.readValue(response.body(), Navigator.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         return navigator;
+    }
+
+    public void fetchAllData() {
+        try {
+            navigateLinksAsync(Fetcher.fetch(this.link, navigateSync(this.link).body()));
+        } catch (InterruptedException | ExecutionException | IOException e) {
+            System.out.println(e);
+        }
     }
 
     public void navigateLinksAsync(Iterator<JsonNode> links) throws ExecutionException, InterruptedException {
