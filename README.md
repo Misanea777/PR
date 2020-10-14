@@ -40,3 +40,9 @@ Threads can be added and deleted after the initialization of the pool. However t
 As a single user you can connect using the **Client-side** implementation:
 
 ## Results:
+### Client side:
+[Output](https://github.com/Misanea777/PR/blob/master/src/main/ScreenShots/sv1.png)
+[Output](https://github.com/Misanea777/PR/blob/master/src/main/ScreenShots/sv2.png)
+[Output](https://github.com/Misanea777/PR/blob/master/src/main/ScreenShots/sv3.png)
+### Server side:
+[Output](https://github.com/Misanea777/PR/blob/master/src/main/ScreenShots/sv4.png)
